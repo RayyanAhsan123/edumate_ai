@@ -14,7 +14,7 @@
 #
 # ============================================================
 
-ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE"
+ANTHROPIC_API_KEY = "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"
 
 # Example (yeh real key nahi hai, sirf format dikhane ke liye):
 # ANTHROPIC_API_KEY = "sk-ant-api03-abcdefghijklmnop-xxxxxxxxxxxxxxxxxxxx-XXXXXXXXXXXXXXXXXXXXXXXX"
