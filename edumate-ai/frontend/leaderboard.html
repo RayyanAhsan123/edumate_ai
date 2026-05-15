@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edumate AI — Leaderboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4 sticky-top shadow">
+  <a class="navbar-brand fw-bold" href="dashboard.html"><i class="bi bi-mortarboard-fill me-2"></i>Edumate AI</a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navMenu">
+    <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+      <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-house-fill me-1"></i>Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="group.html"><i class="bi bi-people-fill me-1"></i>My Group</a></li>
+      <li class="nav-item"><a class="nav-link active" href="leaderboard.html"><i class="bi bi-trophy-fill me-1"></i>Leaderboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="chatbot.html"><i class="bi bi-robot me-1"></i>AI Tutor</a></li>
+      <li class="nav-item"><button class="btn btn-outline-light btn-sm" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <i class="bi bi-trophy-fill text-warning display-4 d-block mb-2"></i>
+    <h2 class="fw-bold">Top 10 Students</h2>
+    <p class="text-muted">Earn points by joining meetings, staying active, and using the AI Tutor.</p>
+  </div>
+
+  <!-- My Points Card -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+      <div class="card border-primary shadow-sm">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="avatar-circle-lg">
+            <i class="bi bi-person-fill fs-3 text-white"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold fs-5" id="my-name">—</div>
+            <div class="text-muted small">Your current score</div>
+          </div>
+          <div class="text-end">
+            <div class="fw-bold fs-3 text-primary" id="my-points">—</div>
+            <div class="text-muted small">points</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      <div id="leaderboard-list">
+        <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Points History -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-7">
+      <div class="card">
+        <div class="card-header fw-semibold">
+          <i class="bi bi-clock-history text-primary me-2"></i>My Points History
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Reason</th>
+                <th class="text-end">Points</th>
+                <th class="text-end">Date</th>
+              </tr>
+            </thead>
+            <tbody id="points-history">
+              <tr><td colspan="3" class="text-center text-muted py-3">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="chatbot.html" class="chat-fab btn btn-primary rounded-circle shadow" title="AI Tutor">
+  <i class="bi bi-robot fs-4"></i>
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+  const user = requireLogin();
+  document.getElementById("my-name").textContent = user.name || "—";
+
+  const medals = ["🥇", "🥈", "🥉"];
+  const rankClasses = ["rank-1", "rank-2", "rank-3"];
+
+  async function loadLeaderboard() {
+    const res = await api.get("/gamification/leaderboard");
+    const list = document.getElementById("leaderboard-list");
+
+    if (!res.leaderboard || res.leaderboard.length === 0) {
+      list.innerHTML = `<div class="text-center text-muted py-4">No data yet. Start attending meetings!</div>`;
+      return;
+    }
+
+    list.innerHTML = res.leaderboard.map(entry => `
+      <div class="leaderboard-row ${rankClasses[entry.rank - 1] || ''} d-flex align-items-center gap-3">
+        <div class="rank-number fw-bold fs-5 text-center" style="min-width:36px">
+          ${medals[entry.rank - 1] || '#' + entry.rank}
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">
+            ${entry.name}
+            ${entry.is_sign_language ? '<i class="bi bi-hand-index-thumb-fill text-primary ms-1" title="Sign Language User"></i>' : ''}
+            ${entry.name === user.name ? '<span class="badge bg-primary ms-1">You</span>' : ''}
+          </div>
+          <div class="text-muted small">${entry.personality_type}</div>
+        </div>
+        <div class="fw-bold text-primary fs-5">${entry.points} <span class="text-muted small fw-normal">pts</span></div>
+      </div>
+    `).join("");
+
+    // Find my rank
+    const me = res.leaderboard.find(e => e.name === user.name);
+    if (me) document.getElementById("my-points").textContent = me.points;
+  }
+
+  async function loadMyPoints() {
+    const res = await api.get("/gamification/my-points");
+    document.getElementById("my-points").textContent = res.total_points || 0;
+    const tbody = document.getElementById("points-history");
+    if (!res.history || res.history.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-3">No points earned yet. Join a meeting!</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = res.history.map(h => `
+      <tr>
+        <td>${h.reason}</td>
+        <td class="text-end text-success fw-bold">+${h.points}</td>
+        <td class="text-end text-muted small">${h.date}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function logout() {
+    await api.post("/auth/logout", {});
+    localStorage.clear();
+    window.location.href = "login.html";
+  }
+
+  loadLeaderboard();
+  loadMyPoints();
+</script>
+
+<style>
+.avatar-circle-lg {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+</style>
+</body>
+</html>

@@ -1,0 +1,97 @@
+====================================================
+  EDUMATE AI — SETUP GUIDE (Simple Steps)
+====================================================
+
+PROJECT CHALANE KE LIYE YEH KARO:
+
+----------------------------------------------------
+STEP 1: Python Install karo
+----------------------------------------------------
+https://python.org/downloads se download karo
+Install karte waqt "Add Python to PATH" checkbox
+zaroor tick karo!
+
+----------------------------------------------------
+STEP 2: Terminal kholo (Command Prompt)
+----------------------------------------------------
+Windows: Win+R dabao, "cmd" likho, Enter
+
+----------------------------------------------------
+STEP 3: Backend folder mein jao
+----------------------------------------------------
+cd C:\path\to\edumate-ai\backend
+(apna actual path likho)
+
+----------------------------------------------------
+STEP 4: Virtual Environment banao
+----------------------------------------------------
+python -m venv venv
+
+----------------------------------------------------
+STEP 5: Activate karo
+----------------------------------------------------
+Windows:   venv\Scripts\activate
+Mac/Linux: source venv/bin/activate
+
+Terminal mein (venv) dikhega — sahi hai!
+
+----------------------------------------------------
+STEP 6: Packages install karo
+----------------------------------------------------
+pip install -r requirements.txt
+
+----------------------------------------------------
+STEP 7: CHATBOT KE LIYE API KEY DAALO
+----------------------------------------------------
+backend/config.py file kholo (Notepad ya VS Code se)
+ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE"
+yahan apni key paste karo
+
+Key kahan se milegi?
+→ https://console.anthropic.com
+→ Sign up → API Keys → Create Key
+
+----------------------------------------------------
+STEP 8: Server Start karo
+----------------------------------------------------
+python app.py
+
+Yeh dikhega:
+  * Running on http://127.0.0.1:5000
+
+YEH TERMINAL BAND MAT KARO!
+
+----------------------------------------------------
+STEP 9: Frontend kholo
+----------------------------------------------------
+frontend/login.html file open karo browser mein
+(double click ya VS Code Live Server)
+
+----------------------------------------------------
+AB APP READY HAI!
+----------------------------------------------------
+1. Signup karo
+2. Personality test do
+3. Group dekho
+4. Meeting schedule karo (agar leader ho)
+5. Chatbot se poocho
+6. Leaderboard check karo
+
+====================================================
+COMMON PROBLEMS:
+====================================================
+
+Problem: "ModuleNotFoundError: flask"
+Fix: venv activate karo (Step 5 dobara karo)
+
+Problem: "Address already in use"
+Fix: backend/app.py mein port=5001 karo
+
+Problem: Chatbot kaam nahi kar raha
+Fix: config.py mein sahi API key daalo
+
+Problem: Meeting nahi khul rahi
+Fix: Backend chal raha hai? browser mein
+     http://127.0.0.1:5000 kholo — message aana chahiye
+
+====================================================

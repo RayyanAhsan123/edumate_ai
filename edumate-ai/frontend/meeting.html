@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edumate AI — Meeting Room</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { background: #0f172a; color: #f1f5f9; }
+
+    .meeting-topbar {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .meeting-topbar .brand {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #60a5fa;
+    }
+
+    .meeting-info {
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    #jitsi-container {
+      width: 100%;
+      height: calc(100vh - 120px);
+      border: none;
+      background: #000;
+    }
+
+    .join-screen {
+      min-height: calc(100vh - 120px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+    }
+
+    .join-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .join-card .icon-big {
+      font-size: 4rem;
+      color: #60a5fa;
+      margin-bottom: 20px;
+    }
+
+    .join-card h3 {
+      color: #f1f5f9;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .join-card p {
+      color: #94a3b8;
+      margin-bottom: 28px;
+    }
+
+    .btn-join-now {
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      border: none;
+      color: white;
+      padding: 14px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-join-now:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+      color: white;
+    }
+
+    .points-badge {
+      background: #166534;
+      color: #86efac;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .status-bar {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .live-dot {
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="meeting-topbar">
+  <div class="brand">
+    <i class="bi bi-mortarboard-fill me-2"></i>Edumate AI
+  </div>
+  <div class="meeting-info">
+    <i class="bi bi-camera-video-fill me-1 text-success"></i>
+    <span id="meeting-title-bar">Meeting Room</span>
+    &nbsp;|&nbsp;
+    <i class="bi bi-people-fill me-1"></i>
+    <span id="group-name-bar">—</span>
+  </div>
+  <div class="d-flex gap-2">
+    <span id="points-earned" class="points-badge d-none">
+      <i class="bi bi-star-fill me-1"></i>+15 Points Earned!
+    </span>
+    <a href="group.html" class="btn btn-sm btn-outline-secondary text-white">
+      <i class="bi bi-arrow-left me-1"></i>Back to Group
+    </a>
+  </div>
+</div>
+
+<!-- Join Screen (shown before joining) -->
+<div class="join-screen" id="join-screen">
+  <div class="join-card">
+    <div class="icon-big"><i class="bi bi-camera-video-fill"></i></div>
+    <h3 id="join-meeting-title">Loading meeting...</h3>
+    <p id="join-meeting-time"></p>
+    <div class="points-badge">
+      <i class="bi bi-star-fill me-1"></i>Join karo aur +15 Points pao!
+    </div>
+    <br/>
+    <button class="btn btn-join-now" onclick="startMeeting()">
+      <i class="bi bi-camera-video-fill me-2"></i>Meeting Join Karo
+    </button>
+    <div class="mt-3">
+      <small style="color:#64748b">
+        <i class="bi bi-shield-check me-1"></i>
+        Jitsi Meet — free & secure. Koi account nahi chahiye.
+      </small>
+    </div>
+  </div>
+</div>
+
+<!-- Jitsi Video (hidden initially) -->
+<div id="jitsi-wrap" style="display:none">
+  <div id="jitsi-container"></div>
+  <div class="status-bar">
+    <div><span class="live-dot"></span>Live Meeting</div>
+    <div id="user-name-bar"></div>
+    <div id="duration-bar">00:00</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+
+<!-- Jitsi Meet External API -->
+<script src="https://meet.jit.si/external_api.js"></script>
+
+<script>
+  const user = requireLogin();
+  let jitsiApi = null;
+  let startTime = null;
+  let timerInterval = null;
+
+  // URL se meeting ID lo
+  const params = new URLSearchParams(window.location.search);
+  const meetingId = params.get("id");
+  const roomName  = params.get("room");
+  const meetTitle = params.get("title") || "Group Meeting";
+  const groupName = params.get("group") || "My Group";
+
+  // Top bar update
+  document.getElementById("meeting-title-bar").textContent = meetTitle;
+  document.getElementById("group-name-bar").textContent    = groupName;
+  document.getElementById("join-meeting-title").textContent = meetTitle;
+  document.getElementById("user-name-bar").textContent      = user.name || "Student";
+  document.getElementById("join-meeting-time").textContent  =
+    "Group: " + groupName;
+
+  async function startMeeting() {
+    // Points earn karo
+    if (meetingId) {
+      const res = await api.post(`/meetings/join/${meetingId}`, {});
+      if (!res.error) {
+        document.getElementById("points-earned").classList.remove("d-none");
+        setTimeout(() => document.getElementById("points-earned").classList.add("d-none"), 5000);
+      }
+    }
+
+    // Join screen hide karo, Jitsi dikhao
+    document.getElementById("join-screen").style.display = "none";
+    document.getElementById("jitsi-wrap").style.display  = "block";
+
+    // Jitsi room naam clean karo
+    const cleanRoom = (roomName || "edumate-room-" + meetingId)
+      .replace(/[^a-zA-Z0-9-]/g, "-");
+
+    // Jitsi Embed
+    jitsiApi = new JitsiMeetExternalAPI("meet.jit.si", {
+      roomName: cleanRoom,
+      width: "100%",
+      height: "100%",
+      parentNode: document.getElementById("jitsi-container"),
+      userInfo: {
+        displayName: user.name || "Student",
+        email: user.email || "",
+      },
+      configOverwrite: {
+        startWithAudioMuted: false,
+        startWithVideoMuted: false,
+        disableDeepLinking: true,
+        enableWelcomePage: false,
+        prejoinPageEnabled: false,        // seedha join — no pre-join screen
+        disableThirdPartyRequests: false,
+      },
+      interfaceConfigOverwrite: {
+        SHOW_JITSI_WATERMARK: false,
+        SHOW_BRAND_WATERMARK: false,
+        DEFAULT_BACKGROUND: "#0f172a",
+        TOOLBAR_BUTTONS: [
+          "microphone", "camera", "closedcaptions",
+          "desktop", "chat", "raisehand",
+          "videoquality", "tileview", "hangup",
+        ],
+      },
+    });
+
+    // Timer shuru karo
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const mins = String(Math.floor(elapsed / 60)).padStart(2, "0");
+      const secs = String(elapsed % 60).padStart(2, "0");
+      document.getElementById("duration-bar").textContent = mins + ":" + secs;
+    }, 1000);
+
+    // Jab meeting chhoro toh wapas group page par jao
+    jitsiApi.addEventListener("readyToClose", () => {
+      clearInterval(timerInterval);
+      window.location.href = "group.html";
+    });
+  }
+</script>
+</body>
+</html>
